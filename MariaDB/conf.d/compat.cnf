@@ -1,0 +1,16 @@
+[client]
+default-character-set   =   latin1
+
+[mysql]
+default-character-set   =   latin1
+
+[mysqld]
+character-set-server    =   latin1
+collation-server        =   latin1_swedish_ci
+skip-character-set-client-handshake
+init_connect            =   "SET sql_mode=''; SET NAMES latin1"
+sql_mode=
+max_allowed_packet      =   64M
+wait_timeout            =   28800
+lower_case_table_names  =   0
+skip-name-resolve
