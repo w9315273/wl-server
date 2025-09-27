@@ -13,16 +13,14 @@ WORKDIR /opt/legacy-libs
 COPY legacy-libs/ ./
 RUN chmod 755 -R /opt/legacy-libs
 
+ENV ROLE=core
 ENV TZ=UTC
 ENV LD_LIBRARY_PATH="/opt/legacy-libs:${LD_LIBRARY_PATH}"
-ENV WLD="/root/wlserver"
+ENV WLD="/root/wlserver57"
 
-RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime \
- && echo "$TZ" > /etc/timezone
+RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" >/etc/timezone
 
 WORKDIR /
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-ENV ROLE=gs
 ENTRYPOINT ["/entrypoint.sh"]
