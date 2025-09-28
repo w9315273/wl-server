@@ -1,30 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-WLD="${WLD:-/root/wlserver57}"
-export LD_LIBRARY_PATH="/opt/legacy-libs:${LD_LIBRARY_PATH:-}"
-export TZ="${TZ:-UTC}"
-
 log() { echo "[$(date +'%F %T')] $*"; }
 
 apply_authd_jdbc() {
-  local AUTH_DIR="${WLD}/authd"
-  local AUTH_XML="${AUTH_DIR}/table.xml"
-  local DB_HOST="${DB_HOST:-127.0.0.1}"
-  local DB_PORT="${DB_PORT:-3306}"
-  local DB_NAME="${DB_NAME:-wl}"
-  local DB_USER="${DB_USER:-root}"
-  local DB_PASS="${DB_PASS:-123456}"
+  local AUTH_XML="${WLD}/authd/table.xml"
+  [[ -f "$AUTH_XML" ]] || { log "WARN: $AUTH_XML 不存在，跳过 JDBC 覆盖"; return; }
 
-  if [[ -f "$AUTH_XML" ]]; then
-    sed -i -E \
-      "s#url=\"jdbc:mysql://[^\"]*#url=\"jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useUnicode=true\\&amp;characterEncoding=utf8#g" \
-      "$AUTH_XML"
-    sed -i -E "s#username=\"[^\"]*\"#username=\"${DB_USER}\"#g" "$AUTH_XML"
-    sed -i -E "s#password=\"[^\"]*\"#password=\"${DB_PASS}\"#g" "$AUTH_XML"
-  else
-    log "WARN: $AUTH_XML 不存在, 跳过 JDBC 覆盖"
-  fi
+  sed -i -E "s#url=\"jdbc:mysql://[^\"]*#url=\"jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useUnicode=true\\&amp;characterEncoding=utf8#g" "$AUTH_XML"
+  sed -i -E "s#username=\"[^\"]*\"#username=\"${DB_USER}\"#g" "$AUTH_XML"
+  sed -i -E "s#password=\"[^\"]*\"#password=\"${DB_PASS}\"#g" "$AUTH_XML"
 }
 
 bg() { ( cd "$1" && shift && "$@" ) & }
@@ -70,47 +55,29 @@ run_core() {
   log "==> 有子进程退出, 容器结束"
 }
 
-run_gsx() {
-  local CONF_DIR="${WLD}/gamed"
-  local ALIAS_CONF="${GS_ALIAS_FILE:?must set GS_ALIAS_FILE}"
-  log "start gsx with alias=${ALIAS_CONF}"
-  cd "$CONF_DIR"
-  exec ./gs gs.conf gmserver.conf "$ALIAS_CONF"
-}
-
 run_toplist() {
-  local BASE="$WLD"
-  local LIB="$BASE/lib"
-  local TOPDIR="$BASE/toplist"
-  local DBSRC="$BASE/gamedbd/dbhomewdb"
-  local DBTMP="$TOPDIR/dbhomewdb"
-  local BIN="$TOPDIR/toplist"
-  local CONF="$TOPDIR/toplist.conf"
-  local LOCK="/var/lock/top57.lock"
-
-  export LD_LIBRARY_PATH="$LIB:${LD_LIBRARY_PATH:-}"
   umask 022
-  mkdir -p "$(dirname "$LOCK")" "$TOPDIR"
+  mkdir -p /var/lock "$WLD/toplist"
 
-  [[ -x "$BIN"  ]] || { echo "ERROR: $BIN 不存在或不可执行"; exit 1; }
-  [[ -f "$CONF" ]] || { echo "ERROR: $CONF 不存在"; exit 1; }
-  [[ -d "$DBSRC" ]]|| { echo "ERROR: 源数据目录 $DBSRC 不存在"; exit 1; }
-
-  exec 9>"$LOCK"
+  exec 9>"$WLD/toplist/top57.lock"
   if ! flock -n 9; then
     echo "WARN: toplist 已在运行, 退出"
     exit 0
   fi
 
-  rm -rf "$DBTMP" && cp -a "$DBSRC" "$DBTMP"
-  log "toplist 一次性刷新开始..."
-  exec nice -n 10 ionice -c2 -n7 "$BIN" "$CONF" "$DBTMP"
+  rm -rf "$WLD/toplist/dbhomewdb"
+  cp -a "$WLD/gamedbd/dbhomewdb" "$WLD/toplist/dbhomewdb"
+
+  log "排行榜刷新开始..."
+  exec nice -n 10 ionice -c2 -n7 \
+    "$WLD/toplist/toplist" \
+    "$WLD/toplist/toplist.conf" \
+    "$WLD/toplist/dbhomewdb"
 }
 
 ROLE="${ROLE:-core}"
 case "$ROLE" in
   core)    run_core ;;
-  gsx)     run_gsx ;;
   toplist) run_toplist ;;
   *)       echo "未知 ROLE=$ROLE(支持: core/gsx/toplist)" ; exit 2 ;;
 esac
