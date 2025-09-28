@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-WLD="${WLD:-/root/wlserver57}"
-export LD_LIBRARY_PATH="/opt/legacy-libs:${LD_LIBRARY_PATH:-}"
-export TZ="${TZ:-UTC}"
-
 log() { echo "[$(date +'%F %T')] $*"; }
 
 run_gsx() {
