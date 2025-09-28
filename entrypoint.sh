@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Euo pipefail
+
+export LD_LIBRARY_PATH="/opt/legacy-libs:$WLD/lib:"
 
 log() { echo "[$(date +'%F %T')] $*"; }
 
@@ -52,7 +54,9 @@ run_core() {
 
   log "==> 全部子进程已拉起"
   wait -n
-  log "==> 有子进程退出, 容器结束"
+  st=$?
+  log "==> 有子进程退出 code=${st} 容器保持运行"
+  tail -f /dev/null
 }
 
 run_toplist() {

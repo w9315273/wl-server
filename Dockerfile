@@ -12,8 +12,7 @@ COPY --chmod=755 legacy-libs/ /opt/legacy-libs/
 
 ENV ROLE=core \
     TZ=UTC \
-    WLD=/root/wlserver57 \
-    LD_LIBRARY_PATH=/opt/legacy-libs
+    WLD=/root/wlserver57
 
 COPY --chmod=755 entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
