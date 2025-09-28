@@ -1,17 +1,15 @@
 x-gsline: &gsline
   image: ghcr.io/w9315273/wl-server:gsx
   network_mode: host
+  volumes:
+    - ./wlserver57:/root/wlserver57
   environment: &gsenv
     ROLE: gsx
     WLD: /root/wlserver57
-  volumes:
-    - ./wlserver57:/root/wlserver57
   restart: "no"
-  depends_on:
-    - core
+  depends_on: [core]
 
 services:
-
   MariaDB:
     image: mariadb:5.5
     container_name: MariaDB
@@ -35,6 +33,9 @@ services:
     image: ghcr.io/w9315273/wl-server:latest
     container_name: wl-core
     network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./wlserver57:/root/wlserver57
     environment:
       ROLE: core
       WLD: /root/wlserver57
@@ -43,133 +44,33 @@ services:
       DB_NAME: "wl"
       DB_USER: "root"
       DB_PASS: "riverbankimplosionbatspajamas"
-    volumes:
-      - ./wlserver57:/root/wlserver57
-    restart: unless-stopped
-    depends_on:
-      - MariaDB
+    depends_on: [MariaDB]
 
-  gs2:
-    <<: *gsline
-    container_name: wl-gs2
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias2.conf"
+  gs2:  { <<: *gsline, container_name: wl-gs2,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias2.conf"  } }
+  gs3:  { <<: *gsline, container_name: wl-gs3,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias3.conf"  } }
+  gs4:  { <<: *gsline, container_name: wl-gs4,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias4.conf"  } }
+  gs5:  { <<: *gsline, container_name: wl-gs5,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias5.conf"  } }
+  gs6:  { <<: *gsline, container_name: wl-gs6,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias6.conf"  } }
+  gs7:  { <<: *gsline, container_name: wl-gs7,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias7.conf"  } }
+  gs8:  { <<: *gsline, container_name: wl-gs8,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias8.conf"  } }
+  gs9:  { <<: *gsline, container_name: wl-gs9,  environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias9.conf"  } }
+  gs10: { <<: *gsline, container_name: wl-gs10, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias10.conf" } }
+  gs11: { <<: *gsline, container_name: wl-gs11, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias11.conf" } }
+  gs12: { <<: *gsline, container_name: wl-gs12, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias12.conf" } }
+  gs13: { <<: *gsline, container_name: wl-gs13, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias13.conf" } }
+  gs14: { <<: *gsline, container_name: wl-gs14, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias14.conf" } }
+  gs15: { <<: *gsline, container_name: wl-gs15, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias15.conf" } }
+  gs31: { <<: *gsline, container_name: wl-gs31, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias_gs31.conf" } }
+  ins1: { <<: *gsline, container_name: wl-ins1, environment: { <<: *gsenv, GS_ALIAS_FILE: "gsalias_ins1.conf" } }
 
-  gs3:
-    <<: *gsline
-    container_name: wl-gs3
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias3.conf"
-
-  gs4:
-    <<: *gsline
-    container_name: wl-gs4
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias4.conf"
-
-  gs5:
-    <<: *gsline
-    container_name: wl-gs5
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias5.conf"
-
-  gs6:
-    <<: *gsline
-    container_name: wl-gs6
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias6.conf"
-
-  gs7:
-    <<: *gsline
-    container_name: wl-gs7
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias7.conf"
-
-  gs8:
-    <<: *gsline
-    container_name: wl-gs8
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias8.conf"
-
-  gs9:
-    <<: *gsline
-    container_name: wl-gs9
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias9.conf"
-
-  gs10:
-    <<: *gsline
-    container_name: wl-gs10
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias10.conf"
-
-  gs11:
-    <<: *gsline
-    container_name: wl-gs11
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias11.conf"
-
-  gs12:
-    <<: *gsline
-    container_name: wl-gs12
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias12.conf"
-
-  gs13:
-    <<: *gsline
-    container_name: wl-gs13
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias13.conf"
-
-  gs14:
-    <<: *gsline
-    container_name: wl-gs14
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias14.conf"
-
-  gs15:
-    <<: *gsline
-    container_name: wl-gs15
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias15.conf"
-
-  gs31:
-    <<: *gsline
-    container_name: wl-gs31
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias_gs31.conf"
-
-  ins1:
-    <<: *gsline
-    container_name: wl-ins1
-    environment:
-      <<: *gsenv
-      GS_ALIAS_FILE: "gsalias_ins1.conf"
-
-  toplist:
-    image: ghcr.io/w9315273/wl-server:gsx
+  top:
+    image: ghcr.io/w9315273/wl-server:latest
     container_name: wl-toplist
     network_mode: host
+    volumes:
+      - ./wlserver57:/root/wlserver57
     environment:
       ROLE: toplist
       WLD: /root/wlserver57
-    volumes:
-      - ./wlserver57:/root/wlserver57
     restart: "no"
-    depends_on:
-      - core
+    depends_on: [core]
