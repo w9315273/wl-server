@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Euo pipefail
+
+export LD_LIBRARY_PATH="/opt/legacy-libs:$WLD/lib:"
 
 log() { echo "[$(date +'%F %T')] $*"; }
 
